@@ -1,97 +1,95 @@
--- criação do banco de dados para o cenario de ecommerce--
-create database ecommerce2;
-use ecommerce;
--- criar tabela cliente
-create table clients(
-			idclient int auto_increment primary key,
-            Pname varchar (10),
-            NameioInicial varchar (3),
-            Sobrenome varchar (20),
-            CPF char (11) not null,
-            Address varchar (30),
-			constraint unique_cpf_cliente unique (CPF)
+-- Criação do banco de dados para o cenário de e-commerce --
+CREATE DATABASE ecommerce2;
+USE ecommerce2;
+
+-- Criar tabela cliente --
+CREATE TABLE clients (
+    idclient INT AUTO_INCREMENT PRIMARY KEY,
+    Pname VARCHAR(10),
+    NameioInicial VARCHAR(3),
+    Sobrenome VARCHAR(20),
+    CPF CHAR(11) NOT NULL,
+    Address VARCHAR(30),
+    CONSTRAINT unique_cpf_cliente UNIQUE (CPF)
 );
 
--- criar tabela produto
-create table product (
-			idProduct int auto_increment primary key,
-            Pname varchar (10) not null,
-            classification_kids bool default false,
-            category enum ('eletronico', 'vestimenta', 'briquedos', 'alimentos'),
-            avaliação float default 0,
-            size varchar (10)
-			
+-- Criar tabela produto --
+CREATE TABLE product (
+    idProduct INT AUTO_INCREMENT PRIMARY KEY,
+    Pname VARCHAR(10) NOT NULL,
+    classification_kids BOOL DEFAULT FALSE,
+    category ENUM('eletronico', 'vestimenta', 'brinquedos', 'alimentos'),
+    avaliacao FLOAT DEFAULT 0,
+    size VARCHAR(10)
 );
 
--- criar tabela pedido
-create table orders (
-			idOrder int auto_increment primary key,
-            idOrderClient int,
-            orderstatus enum ('Cancelado','Confirmardo','Em processamento') default 'em processamento',
-            orderDescription varchar (200),
-            sendvalue float default 10,
-            paymentcash bool default false,
-            constraint fk_orders_client foreign key (idOrderClient) references clients (idclient)  
+-- Criar tabela pedido --
+CREATE TABLE orders (
+    idOrder INT AUTO_INCREMENT PRIMARY KEY,
+    idOrderClient INT,
+    orderstatus ENUM('Cancelado', 'Confirmado', 'Em processamento') DEFAULT 'Em processamento',
+    orderDescription VARCHAR(200),
+    sendvalue FLOAT DEFAULT 10,
+    paymentcash BOOL DEFAULT FALSE,
+    CONSTRAINT fk_orders_client FOREIGN KEY (idOrderClient) REFERENCES clients(idclient)
 );
 
--- criar tabela estoque
-create table prodstorage (
-			idprostorages int auto_increment primary key,
-			storagelocation varchar (255),
-			quantity int default 0
-            
+-- Criar tabela estoque --
+CREATE TABLE prodstorage (
+    idprostorages INT AUTO_INCREMENT PRIMARY KEY,
+    storagelocation VARCHAR(255),
+    quantity INT DEFAULT 0
 );
 
--- criar tabela fornecedor
-create table supplier (
-			idsupplier int auto_increment primary key,
-            socialname varchar (255) not null,
-            CNPJ char (11) not null,
-            Contact varchar (10) not null,
-            constraint unique_supplier unique  (CNPJ)  
+-- Criar tabela fornecedor --
+CREATE TABLE supplier (
+    idsupplier INT AUTO_INCREMENT PRIMARY KEY,
+    socialname VARCHAR(255) NOT NULL,
+    CNPJ CHAR(14) NOT NULL,
+    Contact VARCHAR(20) NOT NULL,
+    CONSTRAINT unique_supplier UNIQUE (CNPJ)
 );
 
--- criar tabela vendedor
-create table seller (
-			idseller int auto_increment primary key,
-            socialname varchar (255) not null,
-            abstname varchar (255),
-            CNPJ char (11) not null,
-			CPF char (11) not null,
-            location varchar (255),
-            Contact varchar (10) not null,
-            constraint unique_CPF_supplier unique  (CPF),
-			constraint unique_CNPJ_supplier unique  (CNPJ)  
-);
--- produtos por vendedor
-
-create table productseller (
-			idPseller int,
-            idProduct int,
-            Quantity int default 1,
-            primary key (idPseller, idProduct),
-            constraint fk_product_seller foreign key (idPseller) references seller (idseller),
-            constraint fk_product_product foreign key (idProduct) references product (idProduct)
-);
--- Produto por pedido
-
-create table productorder (
-			idpoproduct int,
-            idporder int,
-            poquantity int default 1,
-            postatus enum ('disponivel' , 'sem estoque') default 'disponivel',
-            primary key (idpoproduct, idporder),
-            constraint fk_productorder_seller foreign key (idpoproduct) references product (idProduct),
-            constraint fk_productorder_product foreign key (idporder) references orders (idOrder)
+-- Criar tabela vendedor --
+CREATE TABLE seller (
+    idseller INT AUTO_INCREMENT PRIMARY KEY,
+    socialname VARCHAR(255) NOT NULL,
+    abstname VARCHAR(255),
+    CNPJ CHAR(14) NOT NULL,
+    CPF CHAR(11) NOT NULL,
+    location VARCHAR(255),
+    Contact VARCHAR(20) NOT NULL,
+    CONSTRAINT unique_CPF_supplier UNIQUE (CPF),
+    CONSTRAINT unique_CNPJ_supplier UNIQUE (CNPJ)
 );
 
--- Produto localização
+-- Produtos por vendedor --
+CREATE TABLE productseller (
+    idPseller INT,
+    idProduct INT,
+    Quantity INT DEFAULT 1,
+    PRIMARY KEY (idPseller, idProduct),
+    CONSTRAINT fk_product_seller FOREIGN KEY (idPseller) REFERENCES seller(idseller),
+    CONSTRAINT fk_product_product FOREIGN KEY (idProduct) REFERENCES product(idProduct)
+);
 
-create table storelocation (
-			idlproduct int,
-            idlstorage int,
-			location varchar (255) not null,
-            primary key (idlproduct, idlstorage),
-            constraint fk_productlocation_seller foreign key (idlproduct) references product (idProduct),
-            constraint fk_productlocation_product foreign key (idlstorage) references prodstorage (idprostorages)
+-- Produto por pedido --
+CREATE TABLE productorder (
+    idpoproduct INT,
+    idporder INT,
+    poquantity INT DEFAULT 1,
+    postatus ENUM('disponivel', 'sem estoque') DEFAULT 'disponivel',
+    PRIMARY KEY (idpoproduct, idporder),
+    CONSTRAINT fk_productorder_product FOREIGN KEY (idpoproduct) REFERENCES product(idProduct),
+    CONSTRAINT fk_productorder_order FOREIGN KEY (idporder) REFERENCES orders(idOrder)
+);
+
+-- Produto localização --
+CREATE TABLE storelocation (
+    idlproduct INT,
+    idlstorage INT,
+    location VARCHAR(255) NOT NULL,
+    PRIMARY KEY (idlproduct, idlstorage),
+    CONSTRAINT fk_productlocation_product FOREIGN KEY (idlproduct) REFERENCES product(idProduct),
+    CONSTRAINT fk_productlocation_storage FOREIGN KEY (idlstorage) REFERENCES prodstorage(idprostorages)
 );
